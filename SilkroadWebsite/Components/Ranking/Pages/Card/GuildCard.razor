@@ -1,0 +1,115 @@
+﻿@page "/ranking/guild/{GuildName}"
+@using Microsoft.EntityFrameworkCore
+@using SilkroadWebsite.Data.Model.Ranking
+@using SilkroadWebsite.Data.Model.Shard
+@inject Data.ApplicationDbContext Data
+@inject Data.ShardDbContext Shard
+@inject Radzen.DialogService dialogService
+@inject DialogService DialogService
+
+<RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%">
+			<RadzenRow>
+<RadzenText TextStyle="TextStyle.DisplayH6" Class="rz-mt-2 rz-my-0">@GuildName<br /> 
+ <RadzenText TextStyle="TextStyle.Body1" Style="margin-top: 8px; margin-right: 2px;" Class="rz-text-truncate">Guild Master: @guildMaster.CharName<br /></RadzenText>
+
+	<RadzenText TextStyle="TextStyle.Overline" style="float: right; color: black; font-weight: bold; border: 2px solid; padding: 10px; box-shadow: 6px 4px;" Class="rz-text-truncate">Guild Points: @guild.GuildPoints</RadzenText>
+</RadzenText>
+
+
+</RadzenRow>
+	<RadzenDataGrid ref=@guildGrid AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+				Data="@itemsQueryable" ColumnWidth="200px" Density="Density.Compact" AllowAlternatingRows="false" TItem="SR_GuildMember">
+		<Columns>
+				<RadzenDataGridColumn Property="CharName" Title="CharName" Filterable="true" Sortable="false">
+					<Template Context="player">
+						<RadzenImage Path="@GetCharImagePath(GetCharData(@player.CharID).RefObjID)" style="width: 30px; height: 30px; border-radius: 8px; margin-right: 8px; float: left;" AlternateText="@(player.CharName)" />
+						<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@player.CharName</RadzenText>
+						<RadzenImage Path="@GetRaceImgPath(GetCharData(@player.CharID).RefObjID)" style="width: 19px; height: 19px; border-radius: 8px; margin-right: 8px; float: left;" AlternateText="@(player.CharName)" />
+						<RadzenButton Size="ButtonSize.ExtraSmall" Style="float: right;" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => ViewCharacter(player.CharName)) Text="View" />
+					</Template>
+				</RadzenDataGridColumn>
+				<RadzenDataGridColumn Property="CharName" Title="Level" Filterable="false" Sortable="true">
+					<Template Context="player">
+						<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@(GetCharData(player.CharID).CurLevel)</RadzenText>
+					</Template>
+				</RadzenDataGridColumn>
+				<RadzenDataGridColumn Property="Nickname" Title="Grantname" Filterable="false" Sortable="false" />
+
+		</Columns>
+	</RadzenDataGrid>
+	<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+		<RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
+	</RadzenStack>
+</RadzenStack>
+
+@code {
+	[Parameter]
+	public string? GuildName { get; set; }
+	RadzenDataGrid<SR_GuildMember> guildGrid;
+
+	GuildEntity? guild;
+	List<SR_GuildMember> gm;
+	SR_GuildMember guildMaster;
+	SR_Guild g;
+
+	IQueryable<SR_GuildMember> itemsQueryable;
+
+	// SR_Char charEntity;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		guild = Data._Ranking_Guild.FirstOrDefault(o => o.Name == GuildName);
+		g = Shard._Guild.FirstOrDefault(x => x.Name == GuildName);
+		gm = new List<SR_GuildMember>();
+		foreach (var guildMember in Shard._GuildMember)
+		{
+			if (guildMember.GuildID == g.ID)
+			{
+				gm.Add(guildMember);
+				if (guildMember.MemberClass == 0)
+					guildMaster = guildMember;
+			}
+		}
+
+		itemsQueryable = gm.AsQueryable();
+	}
+
+	public SR_Char GetCharData(int charid)
+	{
+		return Shard._Char.FirstOrDefault(x => x.CharID == charid);
+	}
+	public string GetCharImagePath(int RefObjID)
+	{
+		return "image/sro/chars/" + RefObjID.ToString() + ".gif";
+	}
+
+	async Task ViewCharacter(string charname)
+	{
+		await DialogService.OpenAsync<PlayerCard>($"Player {charname}",
+							new Dictionary<string, object>() { { "CharName", charname } },
+							new DialogOptions() { Width = "700px", Height = "650px" });
+
+	}
+
+	public string GetRaceImgPath(int refobjid)
+	{
+		string race = "ch";
+
+		if (refobjid >= 14875)
+			race = "eu";
+
+		return "image/info/" + race + ".png";
+	}
+	// public string GetRace()
+	// {
+	// 	int refobjid = charEntity.RefObjID;
+
+	// 	string race = "Chinese";
+
+	// 	if (refobjid >= 14875)
+	// 		race = "Europe";
+
+	// 	return race;
+		// }
+}

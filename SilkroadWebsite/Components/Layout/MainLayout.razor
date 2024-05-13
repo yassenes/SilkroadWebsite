@@ -1,0 +1,118 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Authorization
+<RadzenComponents/>
+
+<RadzenLayout>
+    <RadzenHeader >
+     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="10rem" Style="position: relative;">
+         <RadzenMenu>
+             <RadzenMenuItem Text="Home" Icon="home" Path ="/"/>
+             <RadzenMenuItem Text="Ranking" Icon="dashboard">
+                 <RadzenMenuItem Text="Player" Icon="color_lens" Path="/ranking/player" />
+                 <RadzenMenuItem Text="Guild" Icon="invert_colors" Path="/ranking/guild" />
+             </RadzenMenuItem>
+          </RadzenMenu>
+
+          <a href="/"><RadzenImage Path="ruby-logo.png" AlternateText="Logo" /></a>
+
+          <RadzenMenu>
+             <RadzenMenuItem Text="Download" Icon="home" Path ="/download"/>
+             <RadzenMenuItem Text="FAQ" Icon="dashboard" >
+             </RadzenMenuItem>
+         </RadzenMenu>
+     </RadzenStack>
+          <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="5" Style="padding-top: 10px; margin-bottom: 5px;">
+                                         <AuthorizeView>
+                <Authorized>
+                   <RadzenGravatar Email="@context.User.Identity.Name" /> <RadzenButton Icon="manage_accounts" Click=@(() => Navigation.NavigateTo("Account/Manage")) Text="@context.User.Identity?.Name" ButtonStyle="ButtonStyle.Light" Style="margin-right: 10px;" title="Manage Account" />
+                   <form action="Account/Logout" method="post">
+                        <AntiforgeryToken /> 
+                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                         <RadzenButton Icon="logout" ButtonType="ButtonType.Submit" Text="Logout" ButtonStyle="ButtonStyle.Dark" />
+
+                   </form>
+                </Authorized>
+                <NotAuthorized>
+                     <RadzenButton Icon="person" Click=@(() => Navigation.NavigateTo("Account/Register")) Text="Register" ButtonStyle="ButtonStyle.Light" />
+
+                    <RadzenButton Icon="person_add_alt" Click=@(() => Navigation.NavigateTo("Account/Login")) Text="Login" ButtonStyle="ButtonStyle.Dark" />
+                </NotAuthorized>
+             </AuthorizeView>
+     </RadzenStack>
+    </RadzenHeader>
+@*     <RadzenSidebar>
+        <RadzenPanelMenu Match="NavLinkMatch.Prefix" DisplayStyle="@(sidebarExpanded ? MenuItemDisplayStyle.IconAndText : MenuItemDisplayStyle.Icon)" ShowArrow="false">
+            <RadzenPanelMenuItem Text="Overview" Icon="home" Path ="/"/>
+            <RadzenPanelMenuItem Text="Ranking" Icon="dashboard" Path="/ranking">
+                <RadzenPanelMenuItem Text="Player" Icon="color_lens" Path="/ranking/player" />
+                <RadzenPanelMenuItem Text="Guild" Icon="invert_colors" Path="/ranking/guild" />
+            </RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </RadzenSidebar> *@
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+    <RadzenFooter Style="display: flex; justify-content: center; align-items: center; margin-left: auto; margin-right: auto; background-color: black; width: 100%; color: white; ">
+        SilkroadWebsite. All rights reserved!
+    </RadzenFooter>
+</RadzenLayout>
+
+@* <div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+            <Authorized>
+               <RadzenButton Icon="manage_accounts" Click=@(() => Navigation.NavigateTo("Account/Manage")) Text="@context.User.Identity?.Name" ButtonStyle="ButtonStyle.Light" Style="margin-right: 10px;" title="Manage Account" />
+               <form action="Account/Logout" method="post">
+                    <AntiforgeryToken /> 
+                     <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                     <RadzenButton Icon="logout" ButtonType="ButtonType.Submit" Text="Logout" ButtonStyle="ButtonStyle.Dark" />
+               </form>
+            </Authorized>
+            <NotAuthorized>
+                <RadzenButton Icon="person_add_alt" Click=@(() => Navigation.NavigateTo("Account/Login")) Text="Login" ButtonStyle="ButtonStyle.Dark" Style="margin-right: 10px;" />
+                <RadzenButton Icon="account_box" Click=@(() => Navigation.NavigateTo("Account/Register")) Text="Register" ButtonStyle="ButtonStyle.Light" />
+            </NotAuthorized>
+        </AuthorizeView>
+
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div> *@
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = Navigation.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

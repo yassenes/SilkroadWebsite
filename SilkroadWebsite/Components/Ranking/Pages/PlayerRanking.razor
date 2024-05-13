@@ -1,0 +1,95 @@
+﻿@page "/ranking/player"
+@using Radzen.Blazor.Rendering;
+@using SilkroadWebsite.Data.Model.Ranking
+@using SilkroadWebsite.Components.Ranking.Pages.Card
+@inject Data.ApplicationDbContext Data
+@inject Data.ShardDbContext Shard
+@inject DialogService DialogService
+
+@attribute [StreamRendering]
+
+<RankingView/>
+
+@if (itemsQueryable != null)
+{
+		<RadzenDataGrid @ref="playerGrid" AllowFiltering="true" FilterPopupRenderMode=PopupRenderMode.OnDemand AllowPaging="true" PageSize="25" Data="@itemsQueryable" TItem="PlayerEntity">
+			<Columns>
+				<RadzenDataGridColumn Width="80px" Title="#" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+					<Template Context="data">
+					@(itemsList.IndexOf(data) + 1)
+					</Template>
+				</RadzenDataGridColumn>
+					<RadzenDataGridColumn Property="CharName" Title="Player" Filterable="true">
+					<Template Context="player">
+						<RadzenImage Path="@GetCharImagePath(@player.CharID)" style="width: 40px; height: 40px; border-radius: 8px; margin-right: 8px; float: left;" AlternateText="@(player.CharName)" />
+						<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@player.CharName</RadzenText>
+						<RadzenImage Path="@GetRaceImgPath(@player.CharID)" style="width: 19px; height: 19px; border-radius: 8px; margin-right: 8px; float: left;" AlternateText="@(player.CharName)" />
+						<RadzenButton Style="float: right;" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => ViewCharacter(player.CharName)) Text="View" />
+						</Template>
+				</RadzenDataGridColumn>
+
+						<RadzenDataGridColumn Property="Guild" Title="Guild" Filterable="false">
+						<Template Context="player">
+							<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@player.Guild</RadzenText>
+								<RadzenButton Style="float: right;" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => ViewGuild(player.Guild)) Text="View" />
+						</Template>
+					</RadzenDataGridColumn>
+
+					<RadzenDataGridColumn Property="Level" Title="Level" Filterable="false" />
+				<RadzenDataGridColumn Property="ItemPoints" Title="Item Points"  Filterable="false" />
+			</Columns>
+		</RadzenDataGrid>
+}
+else
+{
+		<p><em>Loading...</em></p>
+}
+
+@code {
+	RadzenDataGrid<PlayerEntity> playerGrid;
+	IQueryable<PlayerEntity> itemsQueryable;
+
+	List<PlayerEntity> itemsList;
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		itemsQueryable = Data._Ranking_Player.OrderByDescending(p => p.ItemPoints).AsQueryable();
+		itemsList = itemsQueryable.ToList();
+	}
+
+	public string GetCharImagePath(int charid)
+	{
+		int refobjid = Shard._Char.FirstOrDefault(x => x.CharID == charid).RefObjID;
+		return "image/sro/chars/" + refobjid.ToString() + ".gif";
+	}
+
+	public string GetRaceImgPath(int charid)
+	{
+		int refobjid = Shard._Char.FirstOrDefault(x => x.CharID == charid).RefObjID;
+
+		string race = "ch";
+
+		if (refobjid >= 14875)
+			race = "eu";
+
+		return "image/info/" + race + ".png";
+	}
+
+	async Task ViewGuild(string guildName)
+	{
+		await DialogService.OpenAsync<GuildCard>($"Guild {guildName}",
+							new Dictionary<string, object>() { { "GuildName", guildName } },
+							new DialogOptions() { Width = "700px", Height = "600px" });
+
+	}
+
+
+	async Task ViewCharacter(string charname)
+	{
+		await DialogService.OpenAsync<PlayerCard>($"Player {charname}",
+							new Dictionary<string, object>() { { "CharName", charname } },
+							new DialogOptions() { Width = "700px", Height = "650px" });
+
+	}
+}

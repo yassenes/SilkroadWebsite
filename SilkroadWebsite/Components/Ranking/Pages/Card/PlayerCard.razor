@@ -1,0 +1,152 @@
+﻿@page "/ranking/player/{CharName}"
+@using Microsoft.EntityFrameworkCore
+@using SilkroadWebsite.Data.Model.Ranking
+@using SilkroadWebsite.Data.Model.Shard
+@inject Data.ApplicationDbContext Data
+@inject Data.ShardDbContext Shard
+@inject Radzen.DialogService dialogService
+@inject DialogService DialogService
+
+<RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%">
+<RadzenRow>
+<RadzenImage Path="@GetCharImagePath()" style="width: 103px; height: 151px; border-radius: 8px; margin-right: 8px; float: left; padding: .25rem !important;" AlternateText="@(CharName)"/>
+<RadzenText TextStyle="TextStyle.DisplayH3" Class="rz-mt-2 rz-my-0">@CharName<br /> 
+	<RadzenText TextStyle="TextStyle.Overline" style="color: black; font-weight: bold; border: 2px solid; padding: 10px; box-shadow: 6px 4px;" Class="rz-text-truncate">Item Points: @player.ItemPoints</RadzenText>
+</RadzenText>
+</RadzenRow>
+
+	<RadzenStack>
+		<RadzenRow>
+			<RadzenColumn Size="12" SizeMD="6" Class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border)">
+				<RadzenText TextStyle="TextStyle.Subtitle1">Info</RadzenText>
+				<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+					<RadzenStack Gap="0" Class="rz-text-truncate">
+						<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Nickname</RadzenText>
+						<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate"><b>@(charEntity.NickName16)</b></RadzenText>
+						<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-4 rz-mb-0" Style="color: var(--rz-text-tertiary-color);">Guild</RadzenText>
+						<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate"><b>@player.Guild</b></RadzenText>
+						<RadzenButton Size="ButtonSize.ExtraSmall" Style="float: right;" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => ViewGuild(player.Guild)) Text="View" />
+						<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-4 rz-mb-0" Style="color: var(--rz-text-tertiary-color);">Level</RadzenText>
+						<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate"><b>@player.Level</b></RadzenText>
+						<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-4 rz-mb-0" Style="color: var(--rz-text-tertiary-color);">Race</RadzenText>
+						<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate" Style="padding-top: 3px;"><b>
+							<RadzenImage Path="@GetRaceImgPath()" Style="padding-bottom: 3px;"></RadzenImage> @GetRace()
+
+						</b></RadzenText>
+
+					</RadzenStack>
+				</RadzenStack>
+			</RadzenColumn>
+			<RadzenColumn Size="12" SizeMD="6" Class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border)">
+			<RadzenText TextStyle="TextStyle.Subtitle1">Stats</RadzenText>
+			<RadzenStack Gap="0" Class="rz-text-truncate">
+				<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Force (STR)</RadzenText>
+				<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate" Style="padding-top: 5px;"><b>
+					<RadzenImage Path="/image/info/plus_button.png" style="padding-right: 3px;"></RadzenImage> @(charEntity.Strength)</b></RadzenText>
+				<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Mind Power (INT)</RadzenText>
+				<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate" Style="padding-top: 5px;"><b>
+					<RadzenImage Path="/image/info/plus_button.png" style="padding-right: 3px;"></RadzenImage> @(charEntity.Intellect)</b></RadzenText>
+
+				<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">HP (Health)</RadzenText>
+				<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate" Style="padding-top: 6px;"><b>
+					<RadzenImage Path="/image/info/item_hp_potion.png" style="padding-right: 3px; float: left;"></RadzenImage>
+
+					<div class="hp-mp-bar">
+					<div class="hp-bar" style="color:white;">@(charEntity.HP)</div></div></b></RadzenText>
+
+
+				<RadzenText TextStyle="TextStyle.Overline" Class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">MP (Mana)</RadzenText>
+
+				<RadzenText TextStyle="TextStyle.Body1" Class="rz-text-truncate" Style="padding-top: 6px;"><b>
+						<RadzenImage Path="/image/info/item_mp_potion.png" style="padding-right: 3px; float: left;"></RadzenImage>
+					<div class="hp-mp-bar"><div class="mp-bar" style="color:white;">@(charEntity.MP)</div></div></b></RadzenText>
+			</RadzenStack>
+		</RadzenColumn>
+
+		<RadzenColumn Size="12" Class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border)">
+		<RadzenText TextStyle="TextStyle.Subtitle1">Inventory</RadzenText>
+		<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+			@* inventory stuff here *@
+		</RadzenStack>
+		</RadzenColumn>
+
+		<RadzenColumn Size="12" Class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border)">
+		<RadzenText TextStyle="TextStyle.Subtitle1">Player Log</RadzenText>
+		<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+			<RadzenButton Size="ButtonSize.Small" Style="float: right;" ButtonStyle="ButtonStyle.Warning" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Text="Global Chat" Click=@(() => OnLogClick("Global Chat", AlertStyle.Warning)) />
+			<RadzenButton Size="ButtonSize.Small" Style="float: right;" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Text="Unique Kills" Click=@(() => OnLogClick("Unique Kills", AlertStyle.Danger)) />
+			<RadzenButton Size="ButtonSize.Small" Style="float: right;" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Text="PVP Kills" Click=@(() => OnLogClick("PVP Kills", AlertStyle.Light)) />
+			<RadzenButton Size="ButtonSize.Small" Style="float: right;" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Text="Job Kills" Click=@(() => OnLogClick("Job Kills", AlertStyle.Success)) />
+		</RadzenStack>
+
+		<EventConsole LogText="Log" @ref=@console />
+
+		</RadzenColumn>
+
+		</RadzenRow>
+	</RadzenStack>
+	<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+		<RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
+	</RadzenStack>
+</RadzenStack>
+
+@code {
+	[Parameter]
+	public string? CharName { get; set; }
+	EventConsole console;
+	PlayerEntity? player;
+	SR_Char charEntity;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		player = Data._Ranking_Player.FirstOrDefault(o => o.CharName == CharName);
+		charEntity = Shard._Char.FirstOrDefault(x => x.CharName16 == CharName);
+	}
+
+	public string GetCharImagePath()
+	{
+		int refobjid = charEntity.RefObjID;
+		return "image/sro/chars/" + refobjid.ToString() + ".gif";
+	}
+
+	async Task ViewGuild(string guildName)
+	{
+		await DialogService.OpenAsync<GuildCard>($"Guild {guildName}",
+							new Dictionary<string, object>() { { "GuildName", guildName } },
+							new DialogOptions() { Width = "700px", Height = "600px" });
+
+	}
+
+
+	public string GetRaceImgPath()
+	{
+		int refobjid = charEntity.RefObjID;
+
+		string race = "ch";
+
+		if (refobjid >= 14875)
+			race = "eu";
+
+		return "image/info/" + race + ".png";
+	}
+	public string GetRace()
+	{
+		int refobjid = charEntity.RefObjID;
+
+		string race = "Chinese";
+
+		if (refobjid >= 14875)
+			race = "Europe";
+
+		return race;
+	}
+
+	public void OnLogClick(string LogType, AlertStyle alertStyle)
+	{
+		console.Clear();
+		console.LogText = LogType;
+		console.Log(LogType, alertStyle);
+	}
+}

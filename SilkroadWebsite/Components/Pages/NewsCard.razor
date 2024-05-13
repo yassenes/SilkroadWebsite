@@ -1,0 +1,40 @@
+﻿@page "/post/{PostID}"
+
+@using Microsoft.EntityFrameworkCore
+@using SilkroadWebsite.Data.Model.Web
+
+@inject Data.ApplicationDbContext Data
+@inject Radzen.DialogService dialogService
+@inject DialogService DialogService
+
+<RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%">
+	<RadzenRow>
+		<RadzenImage Path="@post.Image" Style="margin-left: auto; margin-right: auto; border-radius: 1%" AlternateText="@(post.Title)" />
+	</RadzenRow>
+
+	<RadzenStack>
+	<RadzenRow>
+		<RadzenColumn Size="12" Class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border)">
+			<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+					@post.Text
+			</RadzenStack>
+		</RadzenColumn>
+	</RadzenRow>
+	</RadzenStack>
+	<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+		<RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
+	</RadzenStack>
+</RadzenStack>
+
+@code {
+	[Parameter]
+	public int PostID { get; set; }
+
+	Post post;
+
+	protected override async Task OnInitializedAsync()
+	{
+		post = Data._Posts.FirstOrDefault(p => p.Id == PostID);
+	}
+
+}
