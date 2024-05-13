@@ -1,6 +1,6 @@
 # SilkroadWebsite
 
-Silkroad Online Website made with Blazor .Net 8
+Silkroad Online Website made with Blazor .Net 8. This project is not a priority for me so I may or may not work on it.
 
 <h2>Pages</h2>
 
@@ -16,6 +16,8 @@ Silkroad Online Website made with Blazor .Net 8
 * Create an admin panel with normal SRO features (adding silk, banning a user etc)
 * Ability to add custom rankings
 * Ability to add custom pages
+* Buy silk page
+* Payment handling with pingback
 
 <h2>PICTURES</h2>
 
