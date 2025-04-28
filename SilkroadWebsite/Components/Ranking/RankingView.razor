@@ -1,19 +1,16 @@
 ﻿@page "/ranking"
+@using SilkroadWebsite.Components.Layout
 @using SilkroadWebsite.Components.Ranking.Pages
 
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 
-<PageTitle>Ranking</PageTitle>
-
-<RadzenBreadCrumb>
-    <RadzenBreadCrumbItem Path="/" Text="Home" />
-    <RadzenBreadCrumbItem Text="Ranking" />
-</RadzenBreadCrumb><br/>
-
+<Breadcrumb PageTitle="Ranking" BackgroundImage="/image/slider/1.jpg" />
+<div class="subpage-content">
 
 <RadzenButton ButtonStyle="ButtonStyle.Warning" Variant="Variant.Flat" Shade="Shade.Darker" Icon="account_box" class="m-1" Click=@(() => Navigation.NavigateTo("/ranking/player")) Text="Player" />
 <RadzenButton ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Darker" Icon="dashboard" class="m-1" Click=@(() => Navigation.NavigateTo("/ranking/guild")) Text="Guild" />
+</div>
 <br/> <br/>
 
 @code {

@@ -1,0 +1,51 @@
+﻿.carousel {
+    margin-top: 56px; /* Matches navbar height */
+    background-color: #ffffff; /* White background */
+}
+
+.carousel-item img {
+    object-fit: cover;
+    height: 80vh;
+}
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.7); /* Slightly darker overlay for readability */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: #ffffff; /* White text for contrast on dark overlay */
+}
+
+    .carousel-caption h5 {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ffffff;
+    }
+
+    .carousel-caption p {
+        font-size: 1.2rem;
+        color: #ffffff;
+    }
+
+.btn-primary {
+    background-color: #ff4500; /* Orange-red button */
+    border-color: #ff4500;
+    color: #ffffff; /* White text */
+}
+
+    .btn-primary:hover {
+        background-color: #e03e00;
+        border-color: #e03e00;
+    }
+
+.carousel-indicators button {
+    background-color: #ff4500; /* Orange-red indicators */
+}
+
+.carousel-indicators .active {
+    background-color: #e03e00; /* Darker orange-red for active */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(0%); /* Black arrows */
+}

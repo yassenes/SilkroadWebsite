@@ -1,0 +1,16 @@
+﻿@page "/news/{Id}"
+@using SilkroadWebsite.Components.Layout
+
+<Breadcrumb PageTitle="News Article" BackgroundImage="/image/slider/1.jpg" ParentLink="/news" ParentTitle="News" />
+<div class="subpage-content">
+    <div class="container news-section py-5">
+<h1>News Article</h1>
+<p>Details for news article with ID: @Id</p>
+<p>This is a placeholder for the full article content.</p>
+<a href="/news" class="btn btn-outline-primary">Back to News</a>
+</div></div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
+}

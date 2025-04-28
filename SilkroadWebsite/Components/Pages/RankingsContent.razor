@@ -1,0 +1,255 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Caching.Memory
+@using SilkroadWebsite.Data
+@using SilkroadWebsite.Data.Model.Ranking
+@using SilkroadWebsite.Data.Model.Web
+@inject Data.ApplicationDbContext Data
+@inject Data.ShardDbContext Shard
+
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#players">Players</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#guilds">Guilds</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="players">
+        <div class="ranking-content">
+            <!-- Player Rankings -->
+            <h2 class="text-center mb-4">Top Players</h2>
+            <div class="row">
+                @foreach (var player in PaginatedPlayers)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 ranking-card">
+                            <div class="card-body text-center">
+                                <img src="@GetCharImagePath(player.CharID)" alt="@player.CharName" class="player-image mb-3" />
+                                <h5 class="card-title">
+                                    <img src="@GetRaceImgPath(player.CharID)" alt="@player.CharName" />
+                                    <a href="/ranking/player/@player.CharName">
+                                        @player.CharName
+                                    </a>
+                                </h5>
+                                <p class="card-text">Guild:
+                                    <a href="/ranking/guild/@player.Guild"> @player.Guild </a>
+                                </p>
+                                <p class="card-text">Level: @player.Level</p>
+                                <p class="text-muted small">ItemPoints: @player.ItemPoints</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (playerTotalPages > 1)
+            {
+                <nav aria-label="Player rankings pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(playerCurrentPage == 1 ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => NavigatePlayerPage(playerCurrentPage - 1)">Previous</button>
+                        </li>
+                        @if (playerTotalPages > 5)
+                        {
+                            int startPage = Math.Max(1, playerCurrentPage - 2);
+                            int endPage = Math.Min(playerTotalPages, startPage + 4);
+
+                            if (endPage - startPage < 4)
+                            {
+                                startPage = Math.Max(1, endPage - 4);
+                            }
+                            for (int i = startPage; i <= endPage; i++)
+                            {
+                                int page = i;
+                                <li class="page-item @(playerCurrentPage == page ? "active" : "")">
+                                    <button class="page-link" @onclick="() => NavigatePlayerPage(page)">@i</button>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            @for (int i = 1; i <= playerTotalPages; i++)
+                            {
+                                int page = i;
+                                <li class="page-item @(playerCurrentPage == page ? "active" : "")">
+                                    <button class="page-link" @onclick="() => NavigatePlayerPage(page)">@i</button>
+                                </li>
+                            }
+                        }
+
+                      
+                        <li class="page-item @(playerCurrentPage == playerTotalPages ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => NavigatePlayerPage(playerCurrentPage + 1)">Next</button>
+                        </li>
+                    </ul>
+                </nav>
+            }
+            </div>
+    </div>
+    <div class="tab-pane" id="guilds">
+        <div class="ranking-content">
+            <h2 class="text-center mb-4 mt-5">Top Guilds</h2>
+            <div class="row">
+                @foreach (var guild in PaginatedGuilds)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 ranking-card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <a href="/ranking/guild/@guild.Name">
+                                       @guild.Name
+                                    </a>
+                                </h5>
+                                <p class="card-text">Members Count: @guild.MemberCount</p>
+                                <p class="card-text">Level: @guild.Level</p>
+                                <p class="text-muted small">Guild Points: @guild.GuildPoints</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (guildTotalPages > 1)
+            {
+                <nav aria-label="Guild rankings pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(guildCurrentPage == 1 ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => NavigateGuildPage(guildCurrentPage - 1)">Previous</button>
+                        </li>
+
+                        @if (guildTotalPages > 5)
+                        {
+                            int startPage = Math.Max(1, guildCurrentPage - 2);
+                            int endPage = Math.Min(guildTotalPages, startPage + 4);
+
+                            if (endPage - startPage < 4)
+                            {
+                                startPage = Math.Max(1, endPage - 4);
+                            }
+                            for (int i = startPage; i <= endPage; i++)
+                            {
+                                int page = i;
+                                <li class="page-item @(guildCurrentPage == page ? "active" : "")">
+                                    <button class="page-link" @onclick="() => NavigateGuildPage(page)">@i</button>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            @for (int i = 1; i <= guildTotalPages; i++)
+                            {
+                                int page = i;
+                                <li class="page-item @(guildCurrentPage == page ? "active" : "")">
+                                    <button class="page-link" @onclick="() => NavigateGuildPage(page)">@i</button>
+                                </li>
+                            }
+                        }
+
+                        <li class="page-item @(guildCurrentPage == guildTotalPages ? "disabled" : "")">
+                            <button class="page-link" @onclick="() => NavigateGuildPage(guildCurrentPage + 1)">Next</button>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<PlayerEntity> players = new();
+    private Dictionary<int, int> charIdToRefObjId = new();
+    private List<GuildEntity> guilds = new();
+
+    private int playerPageSize = 12;
+    private int playerCurrentPage = 1;
+    private int guildPageSize = 12;
+    private int guildCurrentPage = 1;
+
+    private int playerTotalPages => (int)Math.Ceiling((double)players.Count / playerPageSize);
+    private int guildTotalPages => (int)Math.Ceiling((double)guilds.Count / guildPageSize);
+
+    private IEnumerable<PlayerEntity> PaginatedPlayers => players
+        .Skip((playerCurrentPage - 1) * playerPageSize)
+        .Take(playerPageSize);
+
+    private IEnumerable<GuildEntity> PaginatedGuilds => guilds
+        .Skip((guildCurrentPage - 1) * guildPageSize)
+        .Take(guildPageSize);
+
+    private MemoryCacheEntryOptions cacheOptions = new MemoryCacheEntryOptions
+    {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+        SlidingExpiration = TimeSpan.FromMinutes(5)
+    };
+
+    public MemoryCache Cache { get; } = new MemoryCache(new MemoryCacheOptions());
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<PlayerEntity> cachedPlayers;
+        if (!Cache.TryGetValue("PlayerRankingCache", out cachedPlayers))
+        {
+            cachedPlayers = await Task.Run(() => Data._Ranking_Player
+                .OrderByDescending(p => p.ItemPoints)
+                .ToListAsync());
+            Cache.Set("PlayerRankingCache", cachedPlayers, cacheOptions);
+        }
+        players = cachedPlayers;
+
+
+        Dictionary<int, int> cachedCharIdToRefObjId;
+
+        if (!Cache.TryGetValue("CharIdToRefObjIdCache", out cachedCharIdToRefObjId))
+        {
+            cachedCharIdToRefObjId = await Task.Run(() => Shard._Char
+                .ToDictionaryAsync(x => x.CharID, x => x.RefObjID));
+            Cache.Set("CharIdToRefObjIdCache", cachedCharIdToRefObjId, cacheOptions);
+        }
+        charIdToRefObjId = cachedCharIdToRefObjId;
+
+        List<GuildEntity> cachedGuilds;
+
+        if (!Cache.TryGetValue("GuildRankingCache", out cachedGuilds))
+        {
+            cachedGuilds = await Task.Run(() => Data._Ranking_Guild
+                .OrderByDescending(p => p.GuildPoints)
+                .ToListAsync());
+            Cache.Set("GuildRankingCache", cachedGuilds, cacheOptions);
+        }
+        guilds = cachedGuilds;
+    }
+
+    private void NavigatePlayerPage(int page)
+    {
+        if (page >= 1 && page <= playerTotalPages)
+        {
+            playerCurrentPage = page;
+        }
+    }
+
+    private void NavigateGuildPage(int page)
+    {
+        if (page >= 1 && page <= guildTotalPages)
+        {
+            guildCurrentPage = page;
+        }
+    }
+
+    public string GetCharImagePath(int charid)
+    {
+        if (charIdToRefObjId.TryGetValue(charid, out int refobjid))
+        {
+            return $"image/sro/chars/{refobjid}.gif";
+        }
+        return "image/sro/chars/default.gif";
+    }
+
+    public string GetRaceImgPath(int charid)
+    {
+        if (charIdToRefObjId.TryGetValue(charid, out int refobjid))
+        {
+            string race = refobjid >= 14875 ? "eu" : "ch";
+            return $"image/info/{race}.png";
+        }
+        return "image/sro/chars/default.gif";
+    }
+}

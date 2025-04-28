@@ -1,0 +1,68 @@
+﻿.breadcrumb-image {
+    position: relative;
+    height: 300px; /* Fixed height for consistency */
+    background-size: cover;
+    background-position: center;
+    margin-top: 56px; /* Matches navbar height to avoid overlap */
+}
+
+.overlay {
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent dark overlay */
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb {
+    background: transparent; /* Remove default breadcrumb background */
+    margin-bottom: 0.5rem;
+}
+
+.breadcrumb-item a {
+    color: #ffffff; /* White text for links */
+    text-decoration: none;
+}
+
+    .breadcrumb-item a:hover {
+        color: #ff4500; /* Orange-red hover */
+    }
+
+.breadcrumb-item.active {
+    color: #ffffff; /* White for active item */
+}
+
+.page-title {
+    color: #ffffff; /* White title */
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .breadcrumb-image {
+        height: 200px; /* Smaller height on mobile */
+    }
+
+    .page-title {
+        font-size: 1.8rem; /* Smaller title on mobile */
+    }
+
+    .breadcrumb {
+        font-size: 0.9rem; /* Smaller breadcrumbs on mobile */
+    }
+}
+
+.breadcrumb-image {
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

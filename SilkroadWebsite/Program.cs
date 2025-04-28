@@ -1,17 +1,19 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Radzen;
 using SilkroadWebsite.Components;
 using SilkroadWebsite.Components.Account;
+using SilkroadWebsite.Components.Pages;
+using SilkroadWebsite.Components.Ranking.Pages.Card;
 using SilkroadWebsite.Data;
-using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
-
+builder.Services.AddMemoryCache();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
@@ -22,6 +24,12 @@ builder.Services.AddAuthentication(options =>
 		options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 	})
 	.AddIdentityCookies();
+builder.Services.AddSingleton<RankingsContent>();
+builder.Services.AddSingleton<PlayerCard>();
+builder.Services.AddSingleton<GuildCard>();
+builder.Services.AddSingleton<News>();
+builder.Services.AddSingleton<Download>();
+
 builder.Services.AddRadzenComponents();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");

@@ -1,0 +1,92 @@
+﻿.download-section {
+    background-color: #ffffff; /* White background */
+    color: #000000; /* Black text */
+}
+
+    .download-section h2 {
+        color: #000000; /* Black heading */
+        font-weight: 700;
+    }
+
+.download-card {
+    border: 1px solid #e0e0e0; /* Light gray border */
+    transition: box-shadow 0.3s;
+}
+
+    .download-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+    }
+
+.card-title {
+    color: #000000; /* Black title */
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.divider {
+    border: none;
+    background-color: #e0e0e0; /* Light gray divider */
+    height: 1px;
+    margin: 1.5rem 0; /* Increased for balance */
+}
+
+.download-image-spaced {
+    width: 64px; /* Matches original 64x64px */
+    height: 64px;
+    border-radius: 1%; /* Matches original border-radius */
+    object-fit: cover;
+    margin: 1.5rem auto; /* Adds space above and below, centers horizontally */
+    padding: 0.5rem; /* Adds space around all sides */
+    background-color: #f8f8f8; /* Light gray background for subtle framing */
+}
+
+.btn-primary {
+    background-color: #ff4500; /* Orange-red button */
+    border-color: #ff4500;
+    color: #ffffff; /* White text */
+}
+
+    .btn-primary:hover {
+        background-color: #e03e00; /* Darker orange-red */
+        border-color: #e03e00;
+    }
+
+.summary-card {
+    border: 1px solid #e0e0e0;
+    background-color: #f8f8f8; /* Light gray for contrast */
+    color: #000000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .download-card {
+        width: 100%; /* Full width on mobile */
+    }
+
+    .card-title {
+        font-size: 1.1rem; /* Smaller title on mobile */
+    }
+
+    .download-image-spaced {
+        width: 48px; /* Smaller image on mobile */
+        height: 48px;
+        margin: 1rem auto; /* Reduced margin on mobile */
+        padding: 0.3rem; /* Reduced padding on mobile */
+    }
+
+    .divider {
+        margin: 1rem 0; /* Reduced for mobile */
+    }
+}
+
+.download-image-spaced {
+    border: 1px solid #e0e0e0; /* Subtle border */
+}
+.download-image-spaced {
+    transition: transform 0.3s;
+}
+
+    .download-image-spaced:hover {
+        transform: scale(1.1); /* Slight zoom on hover */
+    }

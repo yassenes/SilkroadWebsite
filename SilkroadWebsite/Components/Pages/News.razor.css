@@ -1,0 +1,90 @@
+﻿.news-section {
+    background-color: #ffffff; /* White background */
+    color: #000000; /* Black text */
+}
+
+    .news-section h2 {
+        color: #000000; /* Black heading */
+        font-weight: 700;
+    }
+
+.card {
+    border: 1px solid #e0e0e0; /* Light gray border */
+    transition: box-shadow 0.3s;
+}
+
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+    }
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover; /* Ensure images fit nicely */
+}
+
+.card-title {
+    color: #000000; /* Black title */
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.card-text {
+    color: #000000; /* Black description */
+    font-size: 1rem;
+}
+
+.text-muted {
+    color: #6c757d !important; /* Bootstrap muted gray for date */
+}
+
+.btn-primary {
+    background-color: #ff4500; /* Orange-red button */
+    border-color: #ff4500;
+    color: #ffffff; /* White text */
+}
+
+    .btn-primary:hover {
+        background-color: #e03e00; /* Darker orange-red */
+        border-color: #e03e00;
+    }
+
+.pagination .page-link {
+    color: #000000; /* Black text */
+    border-color: #e0e0e0; /* Light gray border */
+}
+
+    .pagination .page-link:hover {
+        background-color: #f8f8f8; /* Light gray hover */
+        color: #ff4500; /* Orange-red text */
+    }
+
+.pagination .page-item.active .page-link {
+    background-color: #ff4500; /* Orange-red active */
+    border-color: #ff4500;
+    color: #ffffff; /* White text */
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d; /* Muted gray for disabled */
+    background-color: #ffffff;
+    border-color: #e0e0e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .card-img-top {
+        height: 150px; /* Smaller images on mobile */
+    }
+
+    .card-title {
+        font-size: 1.1rem; /* Smaller title on mobile */
+    }
+
+    .card-text {
+        font-size: 0.9rem; /* Smaller text on mobile */
+    }
+
+    .pagination .page-link {
+        font-size: 0.9rem; /* Smaller pagination on mobile */
+    }
+}

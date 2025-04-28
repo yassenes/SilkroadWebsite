@@ -1,5 +1,4 @@
 ﻿@page "/ranking/guild"
-@using Radzen.Blazor.Rendering;
 @using SilkroadWebsite.Data.Model.Ranking
 @using SilkroadWebsite.Components.Ranking.Pages.Card
 
@@ -13,49 +12,96 @@
 
 @if (itemsQueryable != null)
 {
-			<RadzenDataGrid @ref="guildGrid" AllowFiltering="true" FilterPopupRenderMode=PopupRenderMode.OnDemand AllowPaging="true" PageSize="25" Data="@itemsQueryable" TItem="GuildEntity">
-			<Columns>
-				<RadzenDataGridColumn Width="80px" Title="#" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-					<Template Context="data">
-					@(itemsList.IndexOf(data) + 1)
-					</Template>
-				</RadzenDataGridColumn>
-					<RadzenDataGridColumn Property="Name" Title="Guild" Filterable="true">
-					<Template Context="guild">
-						<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@guild.Name</RadzenText>
-						<RadzenButton Style="float: right;" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => ViewGuild(guild.Name)) Text="View" />
-						</Template>
-				</RadzenDataGridColumn>
-
-				<RadzenDataGridColumn Property="MemberCount" Title="Members Count" Filterable="false" />
-				<RadzenDataGridColumn Property="Level" Title="Level" Filterable="false" />
-				<RadzenDataGridColumn Property="GuildPoints" Title="Guild Points"  Filterable="false" />
-			</Columns>
-		</RadzenDataGrid>
+    <table class="data-grid">
+        <thead>
+            <tr>
+                <th style="width: 80px; text-align: center;">#</th>
+                <th>Guild</th>
+                <th>Members Count</th>
+                <th>Level</th>
+                <th>Guild Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var guild in itemsList)
+            {
+                <tr>
+                    <td style="text-align: center;">@(itemsList.IndexOf(guild) + 1)</td>
+                    <td>
+                        <div class="guild-info">
+                            <span class="guild-name">@guild.Name</span>
+                            <button class="view-button" @onclick="() => ViewGuild(guild.Name)">View</button>
+                        </div>
+                    </td>
+                    <td>@guild.MemberCount</td>
+                    <td>@guild.Level</td>
+                    <td>@guild.GuildPoints</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 else
 {
-		<p><em>Loading...</em></p>
+    <p><em>Loading...</em></p>
 }
 
+<style>
+    .data-grid {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-grid th, .data-grid td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .data-grid th {
+        background-color: #f4f4f4;
+        text-align: left;
+    }
+
+    .guild-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .guild-name {
+        font-weight: bold;
+    }
+
+    .view-button {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .view-button:hover {
+        background-color: #138496;
+    }
+</style>
+
 @code {
-	RadzenDataGrid<GuildEntity> guildGrid;
-	IQueryable<GuildEntity> itemsQueryable;
+    List<GuildEntity> itemsList;
+    IQueryable<GuildEntity> itemsQueryable;
 
-	List<GuildEntity> itemsList;
-	protected override async Task OnInitializedAsync()
-	{
-		await Task.Delay(500);
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
 
-		itemsQueryable = Data._Ranking_Guild.OrderByDescending(p => p.GuildPoints).AsQueryable();
-		itemsList = itemsQueryable.ToList();
-	}
+        itemsQueryable = Data._Ranking_Guild.OrderByDescending(p => p.GuildPoints).AsQueryable();
+        itemsList = itemsQueryable.ToList();
+    }
 
-	async Task ViewGuild(string guildname)
-	{
-		await DialogService.OpenAsync<GuildCard>($"Guild {guildname}",
-							new Dictionary<string, object>() { { "GuildName", guildname } },
-							new DialogOptions() { Width = "700px", Height = "600px" });
-
-	}
+    async Task ViewGuild(string guildname)
+    {
+        await DialogService.OpenAsync<GuildCard>($"Guild {guildname}",
+                            new Dictionary<string, object>() { { "GuildName", guildname } },
+                            new DialogOptions() { Width = "700px", Height = "600px" });
+    }
 }

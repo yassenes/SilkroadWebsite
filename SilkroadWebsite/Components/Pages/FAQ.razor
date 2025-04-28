@@ -1,0 +1,89 @@
+﻿@page "/faq"
+@using SilkroadWebsite.Components.Layout
+@using SilkroadWebsite.Data
+@using SilkroadWebsite.Data.Model.Web
+@inject Data.ApplicationDbContext Data
+
+<Breadcrumb PageTitle="Frequently asked questions" BackgroundImage="/image/slider/1.jpg" />
+
+<div class="subpage-content">
+    <div class="container faq-section py-5">
+        <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+        <div class="mb-4">
+            <input type="text" class="form-control search-input" placeholder="Search FAQs..." @bind="searchQuery" @bind:event="oninput" aria-label="Search FAQs" />
+            <button class="btn btn-outline-secondary" type="button" @onclick="() => searchQuery = string.Empty">Clear</button>
+        </div>
+        @if (!FilteredFAQs.Any())
+        {
+            <p class="text-center text-muted">No results found for your search.</p>
+        }
+        else
+        {
+            @foreach (var categoryGroup in FilteredFAQs.GroupBy(f => f.Category).OrderBy(g => g.Key))
+            {
+                <div class="faq-category mb-4">
+                    <h3 class="category-title mb-3">@categoryGroup.Key</h3>
+                    <div class="accordion" id="faqAccordion-@categoryGroup.Key.Replace(" ", "-")">
+                        @foreach (var faq in categoryGroup.OrderBy(f => f.Id))
+                        {
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading-@faq.Id">
+                                    <button class="accordion-button @(faq.Id == categoryGroup.First().Id ? "" : "collapsed")" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse-@faq.Id" 
+                                            aria-expanded="@(faq.Id == categoryGroup.First().Id ? "true" : "false")" 
+                                            aria-controls="collapse-@faq.Id">
+                                        @faq.Question
+                                    </button>
+                                </h2>
+                                <div id="collapse-@faq.Id" 
+                                     class="accordion-collapse collapse @(faq.Id == categoryGroup.First().Id ? "show" : "")" 
+                                     aria-labelledby="heading-@faq.Id" 
+                                     data-bs-parent="#faqAccordion-@categoryGroup.Key.Replace(" ", "-")">
+                                    <div class="accordion-body">
+                                        @faq.Answer
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<FAQ_> faqs = new();
+    private string searchQuery = "";
+
+    private IEnumerable<FAQ_> FilteredFAQs => string.IsNullOrWhiteSpace(searchQuery)
+        ? faqs
+        : faqs.Where(f => f.Category.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                          f.Question.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                          f.Answer.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Mock FAQ data with categories
+        faqs = new List<FAQ_>
+        {
+            new() { Id = 1, Category = "Gameplay", Question = "How do I start playing Ruby Online?", Answer = "Download the game from the official website or our download page, create an account, and follow the installation instructions. Check the system requirements to ensure compatibility." },
+            new() { Id = 2, Category = "Gameplay", Question = "How do rankings work?", Answer = "Rankings are based on player and guild scores, calculated from in-game activities like matches, events, and achievements. Top players and guilds are updated weekly." },
+            new() { Id = 3, Category = "Gameplay", Question = "Can I join a guild?", Answer = "Yes! Visit the in-game guild menu to browse and apply to guilds. Some guilds may have specific requirements, such as minimum score or activity level." },
+            new() { Id = 4, Category = "Technical", Question = "What are the system requirements?", Answer = "Minimum: Windows 10 64-bit, Intel Core i5, 8GB RAM, NVIDIA GTX 1060 or equivalent, 50GB storage. Recommended: Windows 11, Intel Core i7, 16GB RAM, NVIDIA RTX 2060, 50GB SSD." },
+            new() { Id = 5, Category = "Technical", Question = "How do I report a bug?", Answer = "Use the support form on our website or contact us via the in-game feedback tool. Include details like the issue, your system specs, and screenshots if possible." },
+            new() { Id = 6, Category = "Account", Question = "How do I reset my password?", Answer = "Visit the account login page and click 'Forgot Password' to receive a reset link via email. Follow the instructions to set a new password." },
+            new() { Id = 7, Category = "Account", Question = "Can I change my username?", Answer = "Usernames can be changed once every 30 days through the account settings page. Ensure the new username complies with our naming policy." }
+        };
+    }
+
+    private class FAQ_
+    {
+        public int Id { get; set; }
+        public string Category { get; set; } = string.Empty;
+        public string Question { get; set; } = string.Empty;
+        public string Answer { get; set; } = string.Empty;
+    }
+}

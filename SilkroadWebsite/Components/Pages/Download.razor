@@ -1,55 +1,68 @@
 ﻿@page "/download"
-@using SilkroadWebsite.Data;
-@using SilkroadWebsite.Data.Model.Web;
-@inject DialogService DialogService
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Caching.Memory
+@using SilkroadWebsite.Components.Layout
+@using SilkroadWebsite.Data
+@using SilkroadWebsite.Data.Model.Web
 @inject Data.ApplicationDbContext Data
+@inject Microsoft.Extensions.Caching.Memory.IMemoryCache Cache
 
+<Breadcrumb PageTitle="Downloads" BackgroundImage="/image/slider/2.jpg" />
 
-<RadzenBreadCrumb>
-    <RadzenBreadCrumbItem Path="/" Text="Home" />
-    <RadzenBreadCrumbItem Text="Download" />
-</RadzenBreadCrumb><br/>
-
-<RadzenPanel Class="rz-my-10 rz-mx-auto" Style="width: 100%;">
-    <HeaderTemplate>
-        <RadzenText TextStyle="TextStyle.H3" Class="rz-display-flex rz-align-items-center rz-m-0">
-           <b>Downloads</b>
-        </RadzenText>    
-     </HeaderTemplate>
-    <ChildContent>
-            <RadzenDataList PageSize="4" WrapItems="true"
-                            Data="@downloads" TItem="DownloadLinks">
-                <Template Context="download">
-                    <RadzenCard class="rz-mt-4" Style="width: 250px">
-                        <RadzenRow>
-                            <RadzenColumn Size="8" class="rz-text-truncate">
-                                <h3>@(download.Hostname)</h3>
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <hr style="border: none; background-color: var(--rz-text-disabled-color); height: 1px; margin: 1rem 0;" />
-                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
-                            <a href="@download.Url" target="_blank"><RadzenImage Path="@download.Image" Style="width: 64px; height: 64px; margin-left: auto; margin-right: auto; border-radius: 1%" AlternateText="@(download.Hostname)" />
-                             <RadzenText TextAlign="TextAlign.Center" TextStyle="TextStyle.H4">Download</RadzenText></a>
-                            <RadzenStack Gap="0">
-                            </RadzenStack>
-                        </RadzenStack>
-                    </RadzenCard>
-                </Template>
-            </RadzenDataList>
-    </ChildContent>
-    <SummaryTemplate>
-        <RadzenCard class="rz-mt-4">
-            <b>@downloads.Count() Download Links</b>
-        </RadzenCard>
-    </SummaryTemplate>
-</RadzenPanel>
-
+@if (downloads != null)
+{
+<div class="subpage-content">
+    <div class="container download-section py-5">
+        <h2 class="text-center mb-4">Downloads</h2>
+        <div class="row">
+            @foreach (var download in downloads)
+            {
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card h-100 download-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@download.Hostname</h5>
+                            <hr class="divider" />
+                            <a href="@download.Url" target="_blank" class="d-block">
+                                <img src="@download.Image" class="download-image-spaced mb-3" alt="@download.Hostname" />
+                                <span class="btn btn-primary">Download</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="text-center mt-4">
+            <div class="card summary-card">
+                <div class="card-body">
+                    <strong>@downloads.Count() Download Links</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+}
+else
+{
+    <p>Loading...</p>
+}
 
 @code {
-    IQueryable<DownloadLinks> downloads;
+    private List<DownloadLinks> downloads = new();
 
     protected override async Task OnInitializedAsync()
     {
-        downloads = Data._DownloadLinks.AsQueryable();
+        const string cacheKey = "DownloadLinksCache";
+        if (!Cache.TryGetValue(cacheKey, out downloads))
+        {
+            downloads = await Data._DownloadLinks.ToListAsync();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                SlidingExpiration = TimeSpan.FromMinutes(10)
+            };
+
+            Cache.Set(cacheKey, downloads, cacheEntryOptions);
+        }
     }
 }

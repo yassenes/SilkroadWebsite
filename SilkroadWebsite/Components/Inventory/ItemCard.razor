@@ -1,0 +1,126 @@
+﻿@namespace SilkroadWebsite.Components
+@using SilkroadWebsite.Data.Model.Inventory
+
+<Tooltip>
+    <ChildContent>
+        <img src="@Item.ImageUrl" alt="@Item.Name" role="button" aria-describedby="tooltip-@Item.Id">
+    </ChildContent>
+    <TooltipContent>
+        <div id="tooltip-@Item.Id">
+            @if (detailedItem == null)
+            {
+                <p>Loading...</p>
+            }
+            else
+            {
+                <h3 class="item-name @GetRarityClass()">@detailedItem.Name</h3>
+                <p class="item-type">Sort of Item: [@detailedItem.ItemType]</p>
+                <p class="item-description">@detailedItem.Description</p>
+                <ul class="stats">
+                    @if (detailedItem.LevelRequirement > 0)
+                    {
+                        <li><span class="stat-label">Level Req:</span> @FormatStat(detailedItem.LevelRequirement)</li>
+                    }
+                    @if (detailedItem.Power > 0)
+                    {
+                        <li><span class="stat-label">Power:</span> @FormatStat(detailedItem.Power)</li>
+                    }
+                    @if (detailedItem.Defense > 0)
+                    {
+                        <li><span class="stat-label">Defense:</span> @FormatStat(detailedItem.Defense)</li>
+                    }
+                    @if (detailedItem.Speed > 0)
+                    {
+                        <li><span class="stat-label">Speed:</span> @FormatStat(detailedItem.Speed)</li>
+                    }
+                    @if (detailedItem.CriticalChance > 0)
+                    {
+                        <li><span class="stat-label">Critical Chance:</span> @FormatStat(detailedItem.CriticalChance, isPercentage: true)</li>
+                    }
+                    @if (detailedItem.Durability > 0)
+                    {
+                        <li><span class="stat-label">Durability:</span> @FormatStat(detailedItem.Durability)</li>
+                    }
+                    @if (detailedItem.MagicResistance > 0)
+                    {
+                        <li><span class="stat-label">Magic Resist:</span> @FormatStat(detailedItem.MagicResistance)</li>
+                    }
+                    @if (detailedItem.HealthBonus > 0)
+                    {
+                        <li><span class="stat-label">Health Bonus:</span> @FormatStat(detailedItem.HealthBonus, isBonus: true)</li>
+                    }
+                    @if (detailedItem.ManaBonus > 0)
+                    {
+                        <li><span class="stat-label">Mana Bonus:</span> @FormatStat(detailedItem.ManaBonus, isBonus: true)</li>
+                    }
+                </ul>
+                @if (HasMagicOptions())
+                {
+                    <div class="magic-options" aria-label="Magic Options">
+                        <h4>Magic Options</h4>
+                        <ul class="stats">
+                            @if (detailedItem.MagicPower > 0)
+                            {
+                                <li aria-label="Magic Power"><span class="magic-label">Magic Power:</span> @FormatStat(detailedItem.MagicPower, isBonus: true)</li>
+                            }
+                            @if (detailedItem.BlueMagicDamage > 0)
+                            {
+                                <li aria-label="Blue Magic Damage"><span class="magic-label">Blue Magic Damage:</span> @FormatStat(detailedItem.BlueMagicDamage, isBonus: true)</li>
+                            }
+                            @if (detailedItem.MagicCooldownReduction > 0)
+                            {
+                                <li aria-label="Magic Cooldown Reduction"><span class="magic-label">Magic Cooldown Reduction:</span> @FormatStat(detailedItem.MagicCooldownReduction, isPercentage: true)</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+        </div>
+    </TooltipContent>
+</Tooltip>
+
+@code {
+    [Parameter]
+    public Item Item { get; set; } = new();
+
+    private Item? detailedItem;
+    private bool loadError = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // try
+        // {
+        //     detailedItem = await HttpClient.GetFromJsonAsync<Item>($"api/items/{Item.Id}");
+        // }
+        // catch
+        // {
+        //     loadError = true;
+            detailedItem = Item;
+        // }
+    }
+
+    private string FormatStat(int value, bool isPercentage = false, bool isBonus = false)
+    {
+        if (value == 0) return string.Empty;
+        string suffix = isPercentage ? "%" : string.Empty;
+        string prefix = isBonus && value > 0 ? "+" : string.Empty;
+        return $"{prefix}{value}{suffix}";
+    }
+
+    private bool HasMagicOptions()
+    {
+        return detailedItem != null &&
+               (detailedItem.MagicPower > 0 ||
+                detailedItem.BlueMagicDamage > 0 ||
+                detailedItem.MagicCooldownReduction > 0);
+    }
+
+    private string GetRarityClass() => detailedItem?.Rarity switch
+    {
+        "Uncommon" => "rarity-uncommon",
+        "Rare" => "rarity-rare",
+        "Epic" => "rarity-epic",
+        "Legendary" => "rarity-legendary",
+        _ => "rarity-common"
+    };
+}

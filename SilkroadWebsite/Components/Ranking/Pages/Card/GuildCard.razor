@@ -2,114 +2,133 @@
 @using Microsoft.EntityFrameworkCore
 @using SilkroadWebsite.Data.Model.Ranking
 @using SilkroadWebsite.Data.Model.Shard
+@using SilkroadWebsite.Components.Layout
 @inject Data.ApplicationDbContext Data
 @inject Data.ShardDbContext Shard
 @inject Radzen.DialogService dialogService
 @inject DialogService DialogService
 
-<RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%">
-			<RadzenRow>
-<RadzenText TextStyle="TextStyle.DisplayH6" Class="rz-mt-2 rz-my-0">@GuildName<br /> 
- <RadzenText TextStyle="TextStyle.Body1" Style="margin-top: 8px; margin-right: 2px;" Class="rz-text-truncate">Guild Master: @guildMaster.CharName<br /></RadzenText>
+<Breadcrumb PageTitle="@GuildName" BackgroundImage="/image/slider/2.jpg" />
 
-	<RadzenText TextStyle="TextStyle.Overline" style="float: right; color: black; font-weight: bold; border: 2px solid; padding: 10px; box-shadow: 6px 4px;" Class="rz-text-truncate">Guild Points: @guild.GuildPoints</RadzenText>
-</RadzenText>
-
-
-</RadzenRow>
-	<RadzenDataGrid ref=@guildGrid AllowFiltering="true" AllowPaging="true" AllowSorting="true"
-				Data="@itemsQueryable" ColumnWidth="200px" Density="Density.Compact" AllowAlternatingRows="false" TItem="SR_GuildMember">
-		<Columns>
-				<RadzenDataGridColumn Property="CharName" Title="CharName" Filterable="true" Sortable="false">
-					<Template Context="player">
-						<RadzenImage Path="@GetCharImagePath(GetCharData(@player.CharID).RefObjID)" style="width: 30px; height: 30px; border-radius: 8px; margin-right: 8px; float: left;" AlternateText="@(player.CharName)" />
-						<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@player.CharName</RadzenText>
-						<RadzenImage Path="@GetRaceImgPath(GetCharData(@player.CharID).RefObjID)" style="width: 19px; height: 19px; border-radius: 8px; margin-right: 8px; float: left;" AlternateText="@(player.CharName)" />
-						<RadzenButton Size="ButtonSize.ExtraSmall" Style="float: right;" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="m-1" Click=@(() => ViewCharacter(player.CharName)) Text="View" />
-					</Template>
-				</RadzenDataGridColumn>
-				<RadzenDataGridColumn Property="CharName" Title="Level" Filterable="false" Sortable="true">
-					<Template Context="player">
-						<RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@(GetCharData(player.CharID).CurLevel)</RadzenText>
-					</Template>
-				</RadzenDataGridColumn>
-				<RadzenDataGridColumn Property="Nickname" Title="Grantname" Filterable="false" Sortable="false" />
-
-		</Columns>
-	</RadzenDataGrid>
-	<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
-		<RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
-	</RadzenStack>
-</RadzenStack>
+<div class="subpage-content">
+    <div class="container ranking-section py-5">
+        <h2 class="text-center mb-4">@GuildName</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+<div style="display: flex; flex-direction: column; gap: 1rem; justify-content: space-between; height: 100%;">
+    <div style="display: flex; flex-direction: column;">
+        <p style="margin-top: 8px; margin-right: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <strong>Guild Master:</strong> <a href="/ranking/player/@guildMaster.CharName">@guildMaster.CharName</a>
+        </p>
+        <span style="float: right; color: black; font-weight: bold; border: 2px solid; padding: 10px; box-shadow: 6px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            Guild Points: @guild.GuildPoints
+        </span>
+    </div>
+    <div class="player-card">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="width: 200px;">CharName</th>
+                <th style="width: 200px;">Level</th>
+                <th style="width: 200px;">Grant Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in itemsQueryable)
+            {
+                <tr>
+                    <td>
+                        <img src="@GetCharImagePath(GetCharData(player.CharID).RefObjID)" alt="@player.CharName" style="width: 30px; height: 30px; border-radius: 8px; margin-right: 8px; float: left;" />
+                        <a href="/ranking/player/@player.CharName" style="font-size: 0.875rem; font-weight: 500;">@player.CharName</a>
+                        <img src="@GetRaceImgPath(GetCharData(player.CharID).RefObjID)" alt="@player.CharName" style="width: 19px; height: 19px; border-radius: 8px; margin-right: 8px; float: left;" />
+                    </td>
+                    <td>
+                        <span style="font-size: 0.875rem; font-weight: 500;">@(GetCharData(player.CharID).CurLevel)</span>
+                    </td>
+                    <td>@player.Nickname</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+                    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
-	[Parameter]
-	public string? GuildName { get; set; }
-	RadzenDataGrid<SR_GuildMember> guildGrid;
+    [Parameter]
+    public string? GuildName { get; set; }
+    RadzenDataGrid<SR_GuildMember> guildGrid;
 
-	GuildEntity? guild;
-	List<SR_GuildMember> gm;
-	SR_GuildMember guildMaster;
-	SR_Guild g;
+    GuildEntity? guild;
+    List<SR_GuildMember> gm = new();
+    SR_GuildMember? guildMaster;
+    SR_Guild? g;
 
-	IQueryable<SR_GuildMember> itemsQueryable;
+    List<SR_GuildMember> itemsQueryable = new();
 
-	// SR_Char charEntity;
+    private static readonly Dictionary<string, GuildEntity?> GuildCache = new();
+    private static readonly Dictionary<string, SR_Guild?> ShardGuildCache = new();
+    private static readonly Dictionary<int, SR_Char> CharDataCache = new();
 
-	protected override async Task OnInitializedAsync()
-	{
-		await base.OnInitializedAsync();
-		guild = Data._Ranking_Guild.FirstOrDefault(o => o.Name == GuildName);
-		g = Shard._Guild.FirstOrDefault(x => x.Name == GuildName);
-		gm = new List<SR_GuildMember>();
-		foreach (var guildMember in Shard._GuildMember)
-		{
-			if (guildMember.GuildID == g.ID)
-			{
-				gm.Add(guildMember);
-				if (guildMember.MemberClass == 0)
-					guildMaster = guildMember;
-			}
-		}
+    protected override async Task OnInitializedAsync()
+    {
+        // Cache guild data
+        if (!GuildCache.TryGetValue(GuildName ?? string.Empty, out guild))
+        {
+            guild = Data._Ranking_Guild.FirstOrDefault(o => o.Name == GuildName);
+            GuildCache[GuildName ?? string.Empty] = guild;
+        }
 
-		itemsQueryable = gm.AsQueryable();
-	}
+        // Cache shard guild data
+        if (!ShardGuildCache.TryGetValue(GuildName ?? string.Empty, out g))
+        {
+            g = Shard._Guild.FirstOrDefault(x => x.Name == GuildName);
+            ShardGuildCache[GuildName ?? string.Empty] = g;
+        }
 
-	public SR_Char GetCharData(int charid)
-	{
-		return Shard._Char.FirstOrDefault(x => x.CharID == charid);
-	}
-	public string GetCharImagePath(int RefObjID)
-	{
-		return "image/sro/chars/" + RefObjID.ToString() + ".gif";
-	}
+        if (g != null)
+        {
+            gm = Shard._GuildMember
+                .Where(guildMember => guildMember.GuildID == g.ID)
+                .ToList();
 
-	async Task ViewCharacter(string charname)
-	{
-		await DialogService.OpenAsync<PlayerCard>($"Player {charname}",
-							new Dictionary<string, object>() { { "CharName", charname } },
-							new DialogOptions() { Width = "700px", Height = "650px" });
+            guildMaster = gm.FirstOrDefault(member => member.MemberClass == 0);
+        }
 
-	}
+        itemsQueryable = gm.ToList();
+    }
 
-	public string GetRaceImgPath(int refobjid)
-	{
-		string race = "ch";
+    public SR_Char GetCharData(int charid)
+    {
+        if (!CharDataCache.TryGetValue(charid, out var charData))
+        {
+            charData = Shard._Char.FirstOrDefault(x => x.CharID == charid);
+            if (charData != null)
+            {
+                CharDataCache[charid] = charData;
+            }
+        }
+        return charData!;
+    }
 
-		if (refobjid >= 14875)
-			race = "eu";
+    public string GetCharImagePath(int RefObjID)
+    {
+        return $"image/sro/chars/{RefObjID}.gif";
+    }
 
-		return "image/info/" + race + ".png";
-	}
-	// public string GetRace()
-	// {
-	// 	int refobjid = charEntity.RefObjID;
+    async Task ViewCharacter(string charname)
+    {
+        await DialogService.OpenAsync<PlayerCard>($"Player {charname}",
+                            new Dictionary<string, object>() { { "CharName", charname } },
+                            new DialogOptions() { Width = "700px", Height = "650px" });
+    }
 
-	// 	string race = "Chinese";
-
-	// 	if (refobjid >= 14875)
-	// 		race = "Europe";
-
-	// 	return race;
-		// }
+    public string GetRaceImgPath(int refobjid)
+    {
+        string race = refobjid >= 14875 ? "eu" : "ch";
+        return $"image/info/{race}.png";
+    }
 }

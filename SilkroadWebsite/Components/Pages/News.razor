@@ -1,54 +1,130 @@
-﻿@using SilkroadWebsite.Data;
-@using SilkroadWebsite.Data.Model.Web;
-@inject DialogService DialogService
-@inject Data.ApplicationDbContext Data
+﻿@page "/news"  
+@inject NavigationManager Navigation  
+@inject IMemoryCache MemoryCache  
+@using Microsoft.Extensions.Caching.Memory
+@using SilkroadWebsite.Components.Layout  
 
-<RadzenPanel Class="rz-my-10 rz-mx-auto" Style="width: 100%;">
-    <HeaderTemplate>
-        <RadzenImage Style="margin: 0 auto;" Path="image/thumb-ruby.png"></RadzenImage>
-    </HeaderTemplate>
-    <ChildContent>
-            <RadzenDataList PageSize="4" WrapItems="true" AllowPaging="true" 
-                            Data="@posts" TItem="Post">
-                <Template Context="post">
-                    <RadzenCard class="rz-mt-4" @onclick="(() => ViewPost(post.Id, post.Title))" Style="width: 100%">
-                        <RadzenRow>
-                            <RadzenColumn Size="8" class="rz-text-truncate">
-                                <h3>@(post.Title)</h3>
-                            </RadzenColumn>
-                            <RadzenColumn Size="4" class="rz-text-align-end">
-                                <RadzenBadge BadgeStyle="BadgeStyle.Success" Text=@($"NEWS") />
-                            </RadzenColumn>
-                        </RadzenRow>
-                        <hr style="border: none; background-color: var(--rz-text-disabled-color); height: 1px; margin: 1rem 0;" />
-                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
-                            <RadzenImage Path="@post.Image" Style="margin-left: auto; margin-right: auto; border-radius: 1%" AlternateText="@(post.Title)" />
-                            <RadzenStack Gap="0">
-                            </RadzenStack>
-                        </RadzenStack>
-                        <hr class="hr" />
-                        <RadzenText TextAlign="TextAlign.Center" TextStyle="TextStyle.H4">@post.Description</RadzenText>
-                    </RadzenCard>
-                </Template>
-            </RadzenDataList>
-    </ChildContent>
-    <SummaryTemplate>
-        <RadzenCard class="rz-mt-4">
-            <b>@posts.Count() News & Updates</b>
-        </RadzenCard>
-    </SummaryTemplate>
-</RadzenPanel>
+@if (!IsHomePage())  
+{  
+    <Breadcrumb PageTitle="News" BackgroundImage="/image/slider/1.jpg" />  
+}  
 
+<div class="subpage-content">  
+    <div class="container news-section py-5">  
+        <h2 class="text-center mb-4">Latest News</h2>  
+        <div class="row">  
+            @foreach (var article in PaginatedArticles)  
+            {  
+                <div class="col-md-4 mb-4">  
+                    <div class="card h-100">  
+                        <img src="@article.Image" class="card-img-top" alt="@article.Title">  
+                        <div class="card-body">  
+                            <h5 class="card-title">@article.Title</h5>  
+                            <p class="card-text">@article.Summary</p>  
+                            <p class="text-muted small">@article.Date.ToString("MMMM dd, yyyy")</p>  
+                            <a href="/news/@article.Id" class="btn btn-primary">Read More</a>  
+                        </div>  
+                    </div>  
+                </div>  
+            }  
+        </div>  
+        @if (totalPages > 1)  
+        {  
+            <nav aria-label="News pagination" class="mt-4">  
+                <ul class="pagination justify-content-center">  
 
-@code {
-    IQueryable<Post> posts;
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">  
+                        <button class="page-link" @onclick="() => NavigateToPage(currentPage - 1)">Previous</button>  
+                    </li>  
 
-    protected override async Task OnInitializedAsync()
-    {
-        posts = Data._Posts.OrderByDescending(p => p.Id).AsQueryable();
-    }
+                    @if (totalPages > 5)  
+                    {  
+                        int startPage = Math.Max(1, currentPage - 2);  
+                        int endPage = Math.Min(totalPages, startPage + 4);  
 
-    async Task ViewPost(int PostID, string Title) => await DialogService.OpenAsync<NewsCard>($"{Title}",
-                            new Dictionary<string, object>() { { "PostID", PostID } },
-                            new DialogOptions() { Width = "800px", Height = "800px" });
+                        if (endPage - startPage < 4)  
+                        {  
+                            startPage = Math.Max(1, endPage - 4);  
+                        }  
+                        for (int i = startPage; i <= endPage; i++)  
+                        {  
+                            int page = i;  
+                            <li class="page-item @(currentPage == page ? "active" : "")">  
+                                <button class="page-link" @onclick="() => NavigateToPage(page)">@i</button>  
+                            </li>  
+                        }  
+                    }  
+                    else  
+                    {  
+                        @for (int i = 1; i <= totalPages; i++)  
+                        {  
+                            int page = i;  
+                            <li class="page-item @(currentPage == page ? "active" : "")">  
+                                <button class="page-link" @onclick="() => NavigateToPage(page)">@i</button>  
+                            </li>  
+                        }  
+                    }  
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">  
+                        <button class="page-link" @onclick="() => NavigateToPage(currentPage + 1)">Next</button>  
+                    </li>  
+                </ul>  
+            </nav>  
+        }  
+    </div>  
+</div>  
+
+@code {  
+    private List<NewsArticle> articles = new();  
+    private int pageSize = 6;  
+    private int currentPage = 1;  
+    private int totalPages => (int)Math.Ceiling((double)articles.Count / pageSize);  
+    private IEnumerable<NewsArticle> PaginatedArticles => articles.Skip((currentPage - 1) * pageSize).Take(pageSize);  
+
+    private bool IsHomePage()  
+    {  
+        var relativeUri = Navigation.ToBaseRelativePath(Navigation.Uri);  
+        return string.IsNullOrEmpty(relativeUri) || relativeUri == "/";  
+    }  
+
+    protected override async Task OnInitializedAsync()  
+    {  
+        if (!MemoryCache.TryGetValue("NewsArticles", out List<NewsArticle> cachedArticles))  
+        {  
+            // Mock data; replace with database/API call  
+            cachedArticles = new List<NewsArticle>  
+            {  
+                new() { Id = 1, Title = "New Character Reveal", Summary = "Discover the latest hero joining Ruby Online.", Image = "/image/slider/ruby_header_home_dark.jpg", Date = new DateTime(2025, 4, 25) },  
+                new() { Id = 2, Title = "Season 2 Patch Notes", Summary = "Check out the latest balance changes and new features.", Image = "/image/post/1712797516.jpg", Date = new DateTime(2025, 4, 20) },  
+                new() { Id = 3, Title = "Community Event Announced", Summary = "Join our global tournament for a chance to win rewards.", Image = "/image/post/1712797516.png", Date = new DateTime(2025, 4, 15) },  
+                new() { Id = 4, Title = "New Map Unveiled", Summary = "Explore a new battlefield in the latest update.", Image = "/image/post/1713422432.jpg", Date = new DateTime(2025, 4, 10) },  
+                new() { Id = 5, Title = "Developer Q&A Recap", Summary = "Get insights from the Ruby Online team.", Image = "/image/post/1713422432.png", Date = new DateTime(2025, 4, 5) }
+            };  
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions  
+            {  
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)  
+            };  
+
+            MemoryCache.Set("NewsArticles", cachedArticles, cacheEntryOptions);  
+        }  
+
+        articles = cachedArticles;  
+    }  
+
+    private void NavigateToPage(int page)  
+    {  
+        if (page >= 1 && page <= totalPages)  
+        {  
+            currentPage = page;  
+        }  
+    }  
+
+    private class NewsArticle  
+    {  
+        public int Id { get; set; }  
+        public string Title { get; set; } = string.Empty;  
+        public string Summary { get; set; } = string.Empty;  
+        public string Image { get; set; } = string.Empty;  
+        public DateTime Date { get; set; }  
+    }  
 }

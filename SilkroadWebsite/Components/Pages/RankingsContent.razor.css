@@ -1,0 +1,95 @@
+﻿.ranking-content {
+    color: #000000; /* Black text */
+}
+
+    .ranking-content h2 {
+        color: #000000; /* Black heading */
+        font-weight: 700;
+    }
+
+.ranking-card {
+    border: 1px solid #e0e0e0; /* Light gray border */
+    transition: box-shadow 0.3s;
+}
+
+    .ranking-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+    }
+
+.player-image {
+    width: 80px; /* Matches /download */
+    height: 100px;
+    border-radius: 20%; /* Circular for avatars */
+    object-fit: cover;
+    margin: 1.5rem auto; /* Spacing above/below, centered */
+    padding: 0.5rem; /* Space around image */
+    background-color: #f8f8f8; /* Light gray background, like /download */
+    display: block; /* Ensure centering */
+}
+
+.card-title {
+    color: #000000; /* Black title */
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.card-text {
+    color: #000000; /* Black text */
+    font-size: 1rem;
+}
+
+.text-muted {
+    color: #6c757d !important; /* Muted gray for class/leader */
+}
+
+.pagination .page-link {
+    color: #000000; /* Black text */
+    border-color: #e0e0e0; /* Light gray border */
+}
+
+    .pagination .page-link:hover {
+        background-color: #f8f8f8; /* Light gray hover */
+        color: #ff4500; /* Orange-red text */
+    }
+
+.pagination .page-item.active .page-link {
+    background-color: #ff4500; /* Orange-red active */
+    border-color: #ff4500;
+    color: #ffffff; /* White text */
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d; /* Muted gray for disabled */
+    background-color: #ffffff;
+    border-color: #e0e0e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .player-image {
+        width: 48px; /* Smaller image on mobile, like /download */
+        height: 60px;
+        margin: 1rem auto; /* Reduced margin */
+        padding: 0.3rem; /* Reduced padding */
+    }
+
+    .card-title {
+        font-size: 1.1rem; /* Smaller title on mobile */
+    }
+
+    .card-text {
+        font-size: 0.9rem; /* Smaller text on mobile */
+    }
+
+    .pagination .page-link {
+        font-size: 0.9rem; /* Smaller pagination on mobile */
+    }
+}
+
+.player-image {
+    transition: transform 0.3s;
+}
+
+    .player-image:hover {
+        transform: scale(1.1); /* Slight zoom */
+    }

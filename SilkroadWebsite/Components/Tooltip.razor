@@ -1,0 +1,32 @@
+﻿@namespace SilkroadWebsite.Components
+
+<div class="tooltip-container">
+    <div class="trigger" @onmouseover="ShowTooltip" @onmouseout="HideTooltip" @onfocus="ShowTooltip" @onblur="HideTooltip">
+        @ChildContent
+    </div>
+    @if (isTooltipVisible)
+    {
+        <div class="tooltip">
+            @TooltipContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+    [Parameter]
+    public RenderFragment TooltipContent { get; set; } = null!;
+
+    private bool isTooltipVisible = false;
+
+    private void ShowTooltip()
+    {
+        isTooltipVisible = true;
+    }
+
+    private void HideTooltip()
+    {
+        isTooltipVisible = false;
+    }
+}
