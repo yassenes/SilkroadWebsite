@@ -20,5 +20,5 @@ Silkroad Online Website made with Blazor .Net 8. This project is not a priority 
 * Payment handling with pingback
 
 <h2>PICTURES</h2>
-![Slider](https://i.imgur.com/xklsPKk.png)
-
+![Screenshot 2025-04-28 110753](https://github.com/user-attachments/assets/7fb14b5b-ae7e-4057-ba0d-bcc58b105961)
+![Screenshot 2025-04-28 110513](https://github.com/user-attachments/assets/15195fcc-156d-4631-8bf4-ec50e0f0a413)
